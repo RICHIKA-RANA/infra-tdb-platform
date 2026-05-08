@@ -1,7 +1,10 @@
 set -euo pipefail
 
-INFRA_DIR="/workspaces/Talking-db-SC/infra-tdb-platform"
-WORKSPACE="/workspaces/Talking-db-SC"
+# Derive paths from this script's own location so the container path
+# is whatever DevPod chose (varies with parent folder name).
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+INFRA_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+WORKSPACE="$(cd "$INFRA_DIR/.." && pwd)"
 MODULE_DIR="$WORKSPACE/module-talkingdb"
 
 cd "$INFRA_DIR"

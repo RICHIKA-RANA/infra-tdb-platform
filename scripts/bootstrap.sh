@@ -97,20 +97,22 @@ echo
 echo "✔ All repositories ready under: $ROOT"
 
 if [[ "$LAUNCH_DEVPOD" -eq 1 ]]; then
-  echo "▶ Launching DevPod"
-  cd "$ROOT/$INFRA_NAME"
-  exec devpod up . --ide vscode
+  echo "▶ Launching DevPod (workspace root: $ROOT)"
+  cd "$ROOT"
+  exec devpod up . \
+    --ide vscode \
+    --devcontainer-path "$INFRA_NAME/.devcontainer/devcontainer.json"
 fi
 
 echo
 echo "Next steps:"
-echo "  cd \"$ROOT/$INFRA_NAME\""
+echo "  cd \"$ROOT\""
 if command -v devpod >/dev/null 2>&1; then
-  echo "  devpod up . --ide vscode"
+  echo "  devpod up . --ide vscode --devcontainer-path $INFRA_NAME/.devcontainer/devcontainer.json"
 else
   echo "  # Install DevPod first: https://devpod.sh/docs/getting-started/install"
-  echo "  devpod up . --ide vscode"
+  echo "  devpod up . --ide vscode --devcontainer-path $INFRA_NAME/.devcontainer/devcontainer.json"
 fi
 echo
 echo "Or, for native (legacy) run without DevPod:"
-echo "  make sync && make local"
+echo "  cd $INFRA_NAME && make sync && make local"
