@@ -12,6 +12,21 @@ cd "$INFRA_DIR"
 echo "▶ Cloning sibling repositories listed in local/repo.yaml"
 make clone
 
+echo "▶ Configuring container git to redirect GitHub SSH URLs through HTTPS"
+git config --global --unset-all "url.https://github.com/.insteadOf" 2>/dev/null || true
+mapfile -t prefixes < <(
+  {
+    find "$WORKSPACE" -maxdepth 3 -name config -path '*/.git/config' -print0 2>/dev/null \
+      | xargs -0 -r grep -hoE 'git@github[^:]*:|ssh://git@github[^/]*/' 2>/dev/null
+    echo "git@github.com:"
+  } | sort -u
+)
+for prefix in "${prefixes[@]}"; do
+  [[ -z "$prefix" ]] && continue
+  git config --global --add "url.https://github.com/.insteadOf" "$prefix"
+  echo "  ✓ $prefix → https://github.com/"
+done
+
 echo "▶ Syncing repositories and installing Poetry dependencies (mode=git)"
 make sync
 
