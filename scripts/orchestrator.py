@@ -69,7 +69,10 @@ def process_repo(url):
         run(["git", "config", "user.email", "github-actions[bot]@users.noreply.github.com"], cwd=repo_path)
 
         # STEP 1: sync dependencies
-        run_sync_logic(repo_path)
+        try:
+            run_sync_logic(repo_path)
+        except:
+            pass
 
         # STEP 2: commit if needed
         committed = commit_if_needed(repo_path, f"chore: sync deps ({name})")
