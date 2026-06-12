@@ -59,7 +59,7 @@ def run_sync_logic(repo_path):
 
 def run_docker_publish(repo_path, name):
     if 'module-talkingdb' not in name:
-        continue
+        return
         
     repo_path = Path(repo_path)
     remote_image = f"talkingdb/ttt"
