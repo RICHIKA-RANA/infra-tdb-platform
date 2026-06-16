@@ -66,7 +66,7 @@ spec:
                   items:
                     type: string
                     enum: [latest, commit, custom]
-                  default: [latest]
+                  default: [latest, commit]
 
                 module_ttt_custom_tag:
                   type: string
@@ -89,7 +89,7 @@ spec:
                   items:
                     type: string
                     enum: [latest, commit, custom]
-                  default: [latest]
+                  default: [latest, commit]
 
                 content_elementizer_custom_tag:
                   type: string
@@ -203,11 +203,11 @@ spec:
             ]
 
           docker_content_elementizer: ${{ parameters.docker_content_elementizer | string }}
-          content_elementizer_tag_strategy: ${{ parameters.content_elementizer_tag_strategy }}
+          content_elementizer_tag_strategy: ${{ parameters.content_elementizer_tag_strategy | string  }}
           content_elementizer_custom_tag: ${{ parameters.content_elementizer_custom_tag }}
 
           docker_module_ttt: ${{ parameters.docker_module_ttt | string }}
-          module_ttt_tag_strategy: ${{ parameters.module_ttt_tag_strategy }}
+          module_ttt_tag_strategy: ${{ parameters.module_ttt_tag_strategy | string  }}
           module_ttt_custom_tag: ${{ parameters.module_ttt_custom_tag }}
 
           notify_teams: ${{ parameters.notify_teams | string }}
