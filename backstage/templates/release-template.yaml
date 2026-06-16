@@ -1,93 +1,223 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
+
 metadata:
-  name: talkingdb-release
-  title: TalkingDB Release Pipeline
-  description: Trigger release + optional docker build for TalkingDB repos
+  name: ttt-release-form
+  title: TTT Release Manager
+  description: Deploy and release TTTs
+
 spec:
-  type: service
   owner: user:default/mayank.g
+  type: service
 
   parameters:
-    - title: Release Configuration
-      properties:
-        host_domain:
-          type: string
-          title: Host Domain
+    - title: Branch Selection
 
+      properties:
         base_tdb_models_branch:
+          title: base-tdb-models Branch
           type: string
-          title: base-tdb-models branch
           default: main
+          ui:field: RepoBranchPicker
+          ui:options:
+            repoUrl: github.com?owner=TalkingDB&repo=base-tdb-models
+            requestUserCredentials:
+              secretsKey: USER_OAUTH_TOKEN
 
         base_tdb_clients_branch:
+          title: base-tdb-clients Branch
           type: string
-          title: base-tdb-clients branch
           default: main
+          ui:field: RepoBranchPicker
+          ui:options:
+            repoUrl: github.com?owner=TalkingDB&repo=base-tdb-clients
+            requestUserCredentials:
+              secretsKey: USER_OAUTH_TOKEN
 
-        base_tdb_h_helpers_branch:
+        base_tdb_helpers_branch:
+          title: base-tdb-helpers Branch
           type: string
-          title: base-tdb-helpers branch
           default: main
+          ui:field: RepoBranchPicker
+          ui:options:
+            repoUrl: github.com?owner=TalkingDB&repo=base-tdb-helpers
+            requestUserCredentials:
+              secretsKey: USER_OAUTH_TOKEN
 
         package_content_elementizer_branch:
+          title: package-content-elementizer Branch
           type: string
-          title: package-content-elementizer branch
           default: main
+          ui:field: RepoBranchPicker
+          ui:options:
+            repoUrl: github.com?owner=TalkingDB&repo=package-content-elementizer
+            requestUserCredentials:
+              secretsKey: USER_OAUTH_TOKEN
 
         module_ttt_branch:
+          title: module-ttt Branch
           type: string
-          title: module-ttt branch
           default: main
+          ui:field: RepoBranchPicker
+          ui:options:
+            repoUrl: github.com?owner=TalkingDB&repo=module-ttt
+            requestUserCredentials:
+              secretsKey: USER_OAUTH_TOKEN
 
-    - title: Docker Configuration
+    - title: Docker Builds
+
       properties:
         docker_elementizer:
           type: boolean
-          title: Build Docker for package-content-elementizer
+          title: Build package-content-elementizer
           default: false
+
+        elementizer_tag_strategy:
+          title: package-content-elementizer Tag Strategy
+          type: array
+          uniqueItems: true
+
+          items:
+            type: string
+            enum:
+              - latest
+              - commit
+              - custom
+
+          default:
+            - latest
+
+        elementizer_custom_tag:
+          type: string
+          title: Custom Tag
 
         docker_module_ttt:
           type: boolean
-          title: Build Docker for module-ttt
+          title: Build module-ttt
           default: true
 
-        elementizer_tag:
-          type: string
-          title: package-content-elementizer Docker Tag
-          description: Required only if Docker build is enabled
+        module_ttt_tag_strategy:
+          title: module-ttt Tag Strategy
+          type: array
+          uniqueItems: true
 
-        module_ttt_tag:
+          items:
+            type: string
+            enum:
+              - latest
+              - commit
+              - custom
+
+          default:
+            - latest
+
+        module_ttt_custom_tag:
           type: string
-          title: module-ttt Docker Tag
-          description: Required only if Docker build is enabled
+          title: Custom Tag
+
+    - title: Deployment Target
+
+      properties:
+        vm:
+          title: Select VM
+          type: string
+          enum:
+            - create-new
+            - ttt-chat
+
+          default: ttt-chat
+
+        new_vm_name:
+          type: string
+          title: New VM Name
+
+        release:
+          title: Select Release
+          type: string
+          enum:
+            - create-new
+            - rc1
+            - rc2
+            - rc3
+
+          default: create-new
+
+        new_release_name:
+          type: string
+          title: New Release Name
+
+    - title: Notifications
+
+      properties:
+        notify_teams:
+          type: boolean
+          title: Notify Teams
+          default: true
+
+        notify_email:
+          type: boolean
+          title: Notify Email
+          default: true
+
+        additional_recipients:
+          title: Additional Email Recipients
+          type: string
 
   steps:
     - id: trigger
-      name: Trigger GitHub Workflow
+      name: Trigger Release Workflow
       action: github:actions:dispatch
       input:
         repoUrl: github.com?repo=infra-tdb-platform&owner=TalkingDB
         workflowId: sync.yml
         branchOrTagName: main
         workflowInputs:
-          host: ${{ parameters.host_domain }}
-
+          vm: ${{ parameters.vm }}
+          new_vm_name: ${{ parameters.new_vm_name }}
+          release: ${{ parameters.release }}
+          new_release_name: ${{ parameters.new_release_name }}
           repos_json: >
             [
-              { "url": "https://github.com/TalkingDB/base-tdb-models.git", "branch": '${{ parameters.base_tdb_models_branch }}' },
-              { "url": "https://github.com/TalkingDB/base-tdb-clients.git", "branch": '${{ parameters.base_tdb_clients_branch }}' },
-              { "url": "https://github.com/TalkingDB/base-tdb-helpers.git", "branch": '${{ parameters.base_tdb_h_helpers_branch }}' },
-              { "url": "https://github.com/TalkingDB/package-content-elementizer.git", "branch": '${{ parameters.package_content_elementizer_branch }}' },
-              { "url": "https://github.com/TalkingDB/module-ttt.git", "branch": '${{ parameters.module_ttt_branch }}' }
+              {
+                "url": "https://github.com/TalkingDB/base-tdb-models.git",
+                "branch": "${{ parameters.base_tdb_models_branch }}"
+              },
+              {
+                "url": "https://github.com/TalkingDB/base-tdb-clients.git",
+                "branch": "${{ parameters.base_tdb_clients_branch }}"
+              },
+              {
+                "url": "https://github.com/TalkingDB/base-tdb-helpers.git",
+                "branch": "${{ parameters.base_tdb_helpers_branch }}"
+              },
+              {
+                "url": "https://github.com/TalkingDB/package-content-elementizer.git",
+                "branch": "${{ parameters.package_content_elementizer_branch }}"
+              },
+              {
+                "url": "https://github.com/TalkingDB/module-ttt.git",
+                "branch": "${{ parameters.module_ttt_branch }}"
+              }
             ]
 
-          docker_module_ttt: ${{ parameters.docker_module_ttt | string }}
           docker_elementizer: ${{ parameters.docker_elementizer | string }}
+          docker_module_ttt: ${{ parameters.docker_module_ttt | string }}
+          elementizer_tag_strategy: ${{ parameters.elementizer_tag_strategy }}
+          elementizer_custom_tag: ${{ parameters.elementizer_custom_tag }}
+          module_ttt_tag_strategy: ${{ parameters.module_ttt_tag_strategy }}
+          module_ttt_custom_tag: ${{ parameters.module_ttt_custom_tag }}
+          notify_teams: ${{ parameters.notify_teams | string }}
+          notify_email: ${{ parameters.notify_email | string }}
+          additional_recipients: ${{ parameters.additional_recipients }}
 
-          module_ttt_tag: ${{ parameters.module_ttt_tag }}
-          elementizer_tag: ${{ parameters.elementizer_tag }}
   output:
     text:
-      - title: Triggered
-        content: Release pipeline triggered for ${{ parameters.host_domain }}
+      - title: Release Triggered
+        content: |
+          Release workflow submitted.
+          VM: ${{ parameters.vm }}
+          Release: ${{ parameters.release }}
+          Docker Elementizer: ${{ parameters.docker_elementizer }}
+          Docker Module TTT: ${{ parameters.docker_module_ttt }}
+          Teams Notification: ${{ parameters.notify_teams }}
+          Email Notification: ${{ parameters.notify_email }}
