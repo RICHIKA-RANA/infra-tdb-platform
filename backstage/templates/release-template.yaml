@@ -10,13 +10,10 @@ spec:
 
   parameters:
     - title: Release Configuration
-      required:
-        - hostSubdomain
       properties:
-        hostSubdomain:
+        hostDomain:
           type: string
-          title: Host Subdomain
-          description: Will be used as <subdomain>.talkingdb.io
+          title: Host Domain
 
         base-tdb-models-branch:
           type: string
@@ -74,7 +71,7 @@ spec:
         workflowId: sync.yml
         branchOrTagName: main
         workflowInputs:
-          host: "${{ parameters.hostSubdomain }}.talkingdb.io"
+          host: "${{ parameters.hostDomain  || ''}}"
 
           repos_json: >
             [
@@ -85,12 +82,12 @@ spec:
               { "url": "https://github.com/TalkingDB/module-ttt.git", "branch": "${{ parameters.module-ttt-branch }}" },
             ]
 
-          docker_module_ttt: "${{ parameters.docker_module_ttt }}"
-          docker_elementizer: "${{ parameters.docker_elementizer }}"
+          docker_module_ttt: "${{ parameters.docker_module_ttt ? 'true' : 'false' }}"
+          docker_elementizer: "${{ parameters.docker_elementizer ? 'true' : 'false' }}"
 
           module_ttt_tag: "${{ parameters.module_ttt_tag || '' }}"
           elementizer_tag: "${{ parameters.elementizer_tag || '' }}"
   output:
     text:
       - title: Triggered
-        content: Release pipeline triggered for ${{ parameters.hostSubdomain }}.talkingdb.io
+        content: Release pipeline triggered for ${{ parameters.hostDomain }}
