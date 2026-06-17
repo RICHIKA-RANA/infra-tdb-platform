@@ -34,7 +34,7 @@ def enabled(env_name: str) -> bool:
 
 def load_strategy(env_name: str):
     try:
-        return json.loads(os.getenv(env_name, "[]"))
+        return [tag.strip() for tag in os.getenv(env_name, "").split(",") if tag.strip()]
     except Exception:
         return []
 
