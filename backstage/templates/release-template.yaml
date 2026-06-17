@@ -170,7 +170,7 @@ spec:
       action: github:actions:dispatch
       input:
         repoUrl: github.com?repo=infra-tdb-platform&owner=TalkingDB
-        workflowId: sync.yml
+        workflowId: release.yml
         branchOrTagName: main
         workflowInputs:
           vm: ${{ parameters.vm }}

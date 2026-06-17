@@ -1,0 +1,47 @@
+name: Notifications
+
+on:
+  workflow_call:
+    inputs:
+      notify_teams:
+        required: true
+        type: string
+
+      notify_email:
+        required: true
+        type: string
+
+      additional_recipients:
+        required: false
+        type: string
+
+      vm:
+        required: true
+        type: string
+
+      release:
+        required: true
+        type: string
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Notify
+        env:
+          NOTIFY_TEAMS: ${{ inputs.notify_teams }}
+          NOTIFY_EMAIL: ${{ inputs.notify_email }}
+
+          ADDITIONAL_RECIPIENTS: ${{ inputs.additional_recipients }}
+
+          VM: ${{ inputs.vm }}
+          RELEASE: ${{ inputs.release }}
+        run: |
+          python actions/notify.py

@@ -1,0 +1,49 @@
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      vm:
+        required: true
+        type: string
+
+      new_vm_name:
+        required: false
+        type: string
+
+      release:
+        required: true
+        type: string
+
+      new_release_name:
+        required: false
+        type: string
+
+      repos_json:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install pyyaml
+
+      - name: Deploy
+        env:
+          VM: ${{ inputs.vm }}
+          NEW_VM_NAME: ${{ inputs.new_vm_name }}
+
+          RELEASE: ${{ inputs.release }}
+          NEW_RELEASE_NAME: ${{ inputs.new_release_name }}
+
+          REPOS_JSON: ${{ inputs.repos_json }}
+        run: |
+          python actions/deploy.py

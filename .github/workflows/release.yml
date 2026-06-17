@@ -1,0 +1,104 @@
+name: TalkingDB Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      vm:
+        type: string
+        required: true
+
+      new_vm_name:
+        type: string
+        required: false
+
+      release:
+        type: string
+        required: true
+
+      new_release_name:
+        type: string
+        required: false
+
+      repos_json:
+        type: string
+        required: true
+
+      docker_module_ttt:
+        type: string
+        default: "true"
+
+      module_ttt_tag_strategy:
+        type: string
+        default: '["latest","commit"]'
+
+      module_ttt_custom_tag:
+        type: string
+        default: ""
+
+      docker_content_elementizer:
+        type: string
+        default: "false"
+
+      content_elementizer_tag_strategy:
+        type: string
+        default: '["latest","commit"]'
+
+      content_elementizer_custom_tag:
+        type: string
+        default: ""
+
+      notify_teams:
+        type: string
+        default: "true"
+
+      notify_email:
+        type: string
+        default: "true"
+
+      additional_recipients:
+        type: string
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+
+  sync:
+    uses: ./.github/workflows/sync-repositories.yml
+    secrets: inherit
+    with:
+      repos_json: ${{ inputs.repos_json }}
+
+  docker:
+    needs: sync
+    uses: ./.github/workflows/docker-build.yml
+    secrets: inherit
+    with:
+      docker_module_ttt: ${{ inputs.docker_module_ttt }}
+      module_ttt_tag_strategy: ${{ inputs.module_ttt_tag_strategy }}
+      module_ttt_custom_tag: ${{ inputs.module_ttt_custom_tag }}
+
+      docker_content_elementizer: ${{ inputs.docker_content_elementizer }}
+      content_elementizer_tag_strategy: ${{ inputs.content_elementizer_tag_strategy }}
+      content_elementizer_custom_tag: ${{ inputs.content_elementizer_custom_tag }}
+
+  deploy:
+    needs: docker
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit
+    with:
+      vm: ${{ inputs.vm }}
+      new_vm_name: ${{ inputs.new_vm_name }}
+      release: ${{ inputs.release }}
+      new_release_name: ${{ inputs.new_release_name }}
+
+  notify:
+    needs: deploy
+    if: always()
+    uses: ./.github/workflows/notifications.yml
+    secrets: inherit
+    with:
+      notify_teams: ${{ inputs.notify_teams }}
+      notify_email: ${{ inputs.notify_email }}
+      additional_recipients: ${{ inputs.additional_recipients }}

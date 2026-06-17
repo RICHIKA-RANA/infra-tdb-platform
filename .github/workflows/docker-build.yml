@@ -1,0 +1,64 @@
+name: Docker Build
+
+on:
+  workflow_call:
+    inputs:
+      repos_json:
+        required: true
+        type: string
+
+      docker_module_ttt:
+        required: true
+        type: string
+
+      module_ttt_tag_strategy:
+        required: true
+        type: string
+
+      module_ttt_custom_tag:
+        required: false
+        type: string
+
+      docker_content_elementizer:
+        required: true
+        type: string
+
+      content_elementizer_tag_strategy:
+        required: true
+        type: string
+
+      content_elementizer_custom_tag:
+        required: false
+        type: string
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PAT }}
+
+      - run: pip install pyyaml
+
+      - name: Build Docker Images
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+          REPOS_JSON: ${{ inputs.repos_json }}
+
+          DOCKER_MODULE_TTT: ${{ inputs.docker_module_ttt }}
+          MODULE_TTT_TAG_STRATEGY: ${{ inputs.module_ttt_tag_strategy }}
+          MODULE_TTT_CUSTOM_TAG: ${{ inputs.module_ttt_custom_tag }}
+
+          DOCKER_CONTENT_ELEMENTIZER: ${{ inputs.docker_content_elementizer }}
+          CONTENT_ELEMENTIZER_TAG_STRATEGY: ${{ inputs.content_elementizer_tag_strategy }}
+          CONTENT_ELEMENTIZER_CUSTOM_TAG: ${{ inputs.content_elementizer_custom_tag }}
+        run: python actions/docker_build.py
