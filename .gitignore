@@ -1,0 +1,6 @@
+# Vendored Galaxy collections
+ansible/collections/
+
+# Deploy-time artifacts — never commit
+ansible/inventories/generated/
+*.env

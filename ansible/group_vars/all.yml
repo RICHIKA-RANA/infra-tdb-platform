@@ -1,0 +1,12 @@
+---
+# Shared non-secret variables for all environments.
+service_user: talkingdb
+service_group: talkingdb
+deploy_base_dir: /opt/talkingdb
+docker_network_name: talkingdb-net
+
+tdb_services:
+  module_ttt:
+    port: 8090
+  content_elementizer:
+    port: 8091
