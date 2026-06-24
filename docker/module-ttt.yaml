@@ -1,7 +1,6 @@
 services:
   module-ttt:
     image: talkingdb/ttt
-    container_name: module-ttt
     pull_policy: always
     restart: unless-stopped
     volumes:
