@@ -1,0 +1,14 @@
+---
+common_packages:
+  - ca-certificates
+  - curl
+  - gnupg
+  - rsync
+  - python3
+  - python3-pip
+
+common_deploy_dirs:
+  - "{{ deploy_base_dir }}"
+  - "{{ deploy_base_dir }}/config"
+  - "{{ deploy_base_dir }}/data"
+  - "{{ deploy_base_dir }}/releases"

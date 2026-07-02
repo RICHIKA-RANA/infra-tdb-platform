@@ -1,0 +1,13 @@
+---
+galaxy_info:
+  role_name: common
+  author: TalkingDB
+  description: VM base configuration — packages, service user, deploy dirs, talkingdb-net network.
+  license: AGPL-3.0
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+dependencies: []

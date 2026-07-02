@@ -1,0 +1,41 @@
+---
+# VM base configuration: packages, service user, deploy dirs, talkingdb-net.
+
+- name: Install base packages
+  ansible.builtin.apt:
+    name: "{{ common_packages }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
+  tags: [common, packages]
+
+- name: Ensure service group exists
+  ansible.builtin.group:
+    name: "{{ service_group }}"
+    state: present
+    system: true
+  become: true
+  tags: [common, user]
+
+- name: Ensure service user exists
+  ansible.builtin.user:
+    name: "{{ service_user }}"
+    group: "{{ service_group }}"
+    system: true
+    shell: /usr/sbin/nologin
+    create_home: false
+    state: present
+  become: true
+  tags: [common, user]
+
+- name: Ensure deploy directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ service_user }}"
+    group: "{{ service_group }}"
+    mode: "0750"
+  loop: "{{ common_deploy_dirs }}"
+  become: true
+  tags: [common, dirs]
